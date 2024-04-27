@@ -1,0 +1,116 @@
+Q1 --
+
+function releaseStorage(player)
+player:setStorageValue(1000, -1) 
+end
+
+function onLogout(player)
+if player:getStorageValue() == 1 then 
+addEvent(releaseStorage, 1000, player) //releaseStorage will happen after 1000 miliseconds(ms)
+end
+
+end
+
+Q2 --
+
+function printSmallGuildNames(memberCount)
+-- this method is supposed to print names of all guilds that have less than memberCount max members
+
+//the query or the database
+local selectGuildQuery = "SELECT name FROM guilds WHERE max_members < %d;"
+
+//stores query in format (name,membercount)
+local resultId = db.storeQuery(string.format(selectGuildQuery, memberCount))
+
+//iterates through the table
+//ipairs extracts the index and value of the teable
+for k,v in ipairs(resultId) do 
+	print(k)
+	end
+
+end
+
+
+Q3 -- 
+
+//removes a specific player from the a players party
+//removes them by name
+//probably should remove them by playerID
+function RemovePlayerFromPartyByName(playerId, membername)
+
+
+//maybe have checks if the var is null?
+
+//gets the player by their id
+local player = Player(playerId)
+
+//get the player to be removed from the party
+local playerToRemove = Player(membername)
+
+//gets the players party
+local party = player:getParty()
+
+
+//loops through the party for the player to removed and
+//if found removes them and breaks the loop
+for k,v in pairs(party:getMembers()) do
+	if v == playerToRemove then
+		party:removeMember(playerToRemove)
+		break
+	end
+end
+end
+
+Q4 --
+
+
+void Game::addItemToPlayer(const std::string& recipient, uint16_t itemId)
+{
+	
+	//gets the player by id
+	Player* player = g_game.getPlayerByName(recipient);
+	
+	//checks if the player is valid
+	//if not creates a new player
+	//and tries to find them by name
+	if (!player)
+	{
+
+		player = new Player(nullptr);
+
+		if (!IOLoginData::loadPlayerByName(player, recipient)) 
+		{
+			return;
+		}
+	}
+	
+	//create a item with its id
+	Item* item = Item::CreateItem(itemId);
+	
+	//if the item doesnt exist 
+	//exit
+	if (!item)
+	{
+		return;
+	}
+	
+
+	//adds the item to the players inventory
+	g_game.internalAddItem(player->getInbox(), item, INDEX_WHEREEVER, FLAG_NOLIMIT);
+	
+	//if the player is offline when the itme is added save the info
+	//for the player 
+	if (player->isOffline() == True) 
+	{
+		IOLoginData::savePlayer(player);
+	}
+
+//here we delete the pointers and set to null after to avoid a dangling pointer
+//we are doing this at the end of the function as we have used them for everything and should be safe to delete
+
+	delete item;
+	item = nullptr;
+
+	delete player;
+	player = nullptr;
+}
